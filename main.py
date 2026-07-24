@@ -45,7 +45,6 @@ st.markdown(
 )
 
 
-# Base de datos completa con las 10 ligas oficiales y sus equipos
 @st.cache_data
 def cargar_datos_completos():
   datos_informe = {
@@ -231,10 +230,41 @@ def cargar_datos_completos():
           "Arbroath FC",
       ],
       "Liga de Bolivia (Bolivia)": [
-          "THE STRONGEST",
-          "BOLÍVAR",
-          "ALWAYS READY",
-          "WILSTERMANN",
+          "The Strongest",
+          "Bolívar",
+          "Always Ready",
+          "Wilstermann",
+          "Blooming",
+          "Oriente Petrolero",
+          "Royal Pari",
+          "Nacional Potosí",
+          "Aurora",
+          "Real Tomayapo",
+          "Guabirá",
+          "Independiente Petrolero",
+          "San Antonio Bulo Bulo",
+          "Gualberto Villarroel SJ",
+          "Universitario de Vinto",
+      ],
+      "Liga MX (México)": [
+          "Club América",
+          "Monterrey",
+          "Tigres UANL",
+          "Cruz Azul",
+          "Chivas Guadalajara",
+          "Pumas UNAM",
+          "Toluca",
+          "Pachuca",
+          "Santos Laguna",
+          "Atlas",
+          "León",
+          "Querétaro",
+          "Necaxa",
+          "Atlético San Luis",
+          "Mazatlán FC",
+          "Club Tijuana",
+          "FC Juárez",
+          "Puebla",
       ],
   }
 
@@ -391,7 +421,7 @@ try:
           total_goles = row["goles_local"] + row["goles_visitante"]
           if total_goles > 2:
             tag_color = "#00FF66"
-            tag_texto = f"🟢 {total_gions} Goles (+2.5)" if False else f"🟢 {total_goles} Goles (+2.5)"
+            tag_texto = f"🟢 {total_goles} Goles (+2.5)"
           else:
             tag_color = "#FF4B4B"
             tag_texto = f"🔴 {total_goles} Goles (-2.5)"
