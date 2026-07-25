@@ -303,7 +303,7 @@ LEAGUES_DATABASE = {
 
 st.title("⚡ Golazo 2.5 Pro")
 st.write(
-    "Motor predictivo avanzado de alta precisión para el mercado de más de 2.5 goles."
+    "Introduce los promedios reales de goles del partido que vas a analizar."
 )
 
 selected_league = st.selectbox("Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
@@ -318,35 +318,61 @@ with col2:
         "Equipo Visitante", [t for t in teams if t != home_team]
     )
 
-home_input = st.text_input("Promedio de goles esperados (Local)", "1.5")
-away_input = st.text_input("Promedio de goles esperados (Visitante)", "1.2")
+# Campos vacíos por defecto para obligar a ingresar datos reales por partido
+home_input = st.text_input(
+    "Promedio de goles esperados (Local)",
+    "",
+    placeholder="Ej: 1.8 o 1,8",
+)
+away_input = st.text_input(
+    "Promedio de goles esperados (Visitante)",
+    "",
+    placeholder="Ej: 1.4 o 1,4",
+)
 
 if st.button("Calcular Predicción y Análisis"):
+    if not home_input or not away_input:
+        st.warning(
+            "⚠️ Por favor, ingresa los promedios de ambos equipos antes de calcular."
+        )
+        st.stop()
+
     try:
         home_avg = float(home_input.replace(",", "."))
         away_avg = float(away_input.replace(",", "."))
     except ValueError:
         st.error(
-            "⚠️ Por favor, introduce valores numéricos válidos (ej. 1.5 o 1,5)."
+            "⚠️ Formato inválido. Usa números con punto o coma (ej: 1.7 o 1,7)."
         )
         st.stop()
 
-    # Base de goles esperados
     raw_total = home_avg + away_avg
 
-    # Multiplicador de rendimiento ofensivo para ligas de alto octanaje (Alemania, Países Bajos, Noruega)
-    league_multiplier = 1.05 if selected_league in ["Alemania", "Paises Bajos", "Noruega", "Inglaterra"] else 1.00
-    
-    # Bonificación especial si juega un gigante histórico conocido por golear (como Bayern Múnich)
-    power_teams = ["Bayern Múnich", "Bayer Leverkusen", "Borussia Dortmund", "Ajax", "PSV Eindhoven", "Manchester City", "Real Madrid", "FC Barcelona"]
+    # Multiplicador dinámico según la liga y jerarquía
+    league_multiplier = (
+        1.05
+        if selected_league in ["Alemania", "Paises Bajos", "Noruega", "Inglaterra"]
+        else 1.00
+    )
+    power_teams = [
+        "Bayern Múnich",
+        "Bayer Leverkusen",
+        "Borussia Dortmund",
+        "Ajax",
+        "PSV Eindhoven",
+        "Manchester City",
+        "Real Madrid",
+        "FC Barcelona",
+    ]
     if home_team in power_teams or away_team in power_teams:
         league_multiplier += 0.08
 
     expected_total = raw_total * league_multiplier
 
-    # Cálculo dinámico optimizado para reflejar la probabilidad real del mercado de +2.5
-    prob_over_2_5 = float(1 / (1 + np.exp(-(expected_total - 2.45) * 3.2))) * 100
-    prob_over_2_5 = max(10.0, min(95.0, prob_over_2_5))
+    prob_over_2_5 = (
+        float(1 / (1 + np.exp(-(expected_total - 2.45) * 3.2))) * 100
+    )
+    prob_over_2_5 = max(5.0, min(98.0, prob_over_2_5))
     prob_under_2_5 = 100 - prob_over_2_5
 
     st.markdown("---")
@@ -371,7 +397,6 @@ if st.button("Calcular Predicción y Análisis"):
             "❌ **Dictamen DESCARTADO:** Tendencia a partido cerrado (Under 2.5)."
         )
 
-    # Bloque de Análisis Estadístico
     st.markdown("### 📋 Desglose Técnico")
     st.markdown(
         f"""
@@ -384,7 +409,7 @@ if st.button("Calcular Predicción y Análisis"):
 
     if prob_over_2_5 >= 58.0:
         st.info(
-            f"💡 **Criterio de Inversión:** El poderío ofensivo combinado y el factor de liga elevan el xG a {expected_total:.2f}, respaldando sólidamente el **Más de 2.5 goles**."
+            f"💡 **Criterio de Inversión:** El poderío ofensivo combinado eleva el xG a {expected_total:.2f}, respaldando sólidamente el **Más de 2.5 goles**."
         )
     else:
         st.info(
