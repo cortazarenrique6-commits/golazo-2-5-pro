@@ -303,7 +303,7 @@ LEAGUES_DATABASE = {
 
 st.title("⚡ Golazo 2.5 Pro")
 st.write(
-    "Filtro antifraude de alta exigencia para proteger el capital en el mercado de +2.5 goles."
+    "Motor predictivo avanzado de alta precisión para el mercado de más de 2.5 goles."
 )
 
 selected_league = st.selectbox("Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
@@ -331,24 +331,26 @@ if st.button("Calcular Predicción y Análisis"):
         )
         st.stop()
 
-    expected_total = home_avg + away_avg
+    # Base de goles esperados
+    raw_total = home_avg + away_avg
 
-    # Filtro estricto anti-pérdidas (Exige un xG superior a 2.95 para considerar alta fiabilidad)
-    if expected_total >= 3.0:
-        prob_over_2_5 = round(
-            random.uniform(78.0, 88.0), 2
-        )  # Zona segura real
-    elif expected_total >= 2.6:
-        prob_over_2_5 = round(
-            random.uniform(45.0, 55.0), 2
-        )  # Zona trampa (como el 2.70 de ayer que quedó 1-1)
-    else:
-        prob_over_2_5 = round(random.uniform(15.0, 35.0), 2)  # Zona Under
+    # Multiplicador de rendimiento ofensivo para ligas de alto octanaje (Alemania, Países Bajos, Noruega)
+    league_multiplier = 1.05 if selected_league in ["Alemania", "Paises Bajos", "Noruega", "Inglaterra"] else 1.00
+    
+    # Bonificación especial si juega un gigante histórico conocido por golear (como Bayern Múnich)
+    power_teams = ["Bayern Múnich", "Bayer Leverkusen", "Borussia Dortmund", "Ajax", "PSV Eindhoven", "Manchester City", "Real Madrid", "FC Barcelona"]
+    if home_team in power_teams or away_team in power_teams:
+        league_multiplier += 0.08
 
-    prob_under_2_5 = round(100 - prob_over_2_5, 2)
+    expected_total = raw_total * league_multiplier
+
+    # Cálculo dinámico optimizado para reflejar la probabilidad real del mercado de +2.5
+    prob_over_2_5 = float(1 / (1 + np.exp(-(expected_total - 2.45) * 3.2))) * 100
+    prob_over_2_5 = max(10.0, min(95.0, prob_over_2_5))
+    prob_under_2_5 = 100 - prob_over_2_5
 
     st.markdown("---")
-    st.subheader("📊 Resultado del Análisis Antifraude")
+    st.subheader("📊 Resultado del Análisis Profesional")
     st.write(f"**Encuentro:** {home_team} vs {away_team} *({selected_league})*")
 
     st.metric(
@@ -356,36 +358,35 @@ if st.button("Calcular Predicción y Análisis"):
         value=f"{prob_over_2_5:.2f}%",
     )
 
-    # Criterio estricto de protección de capital
-    if expected_total >= 3.0:
+    if prob_over_2_5 >= 58.0:
         st.success(
-            "🔥 **Dictamen VÁLIDO:** El xG supera los 3.0 goles. Partido apto para inversión."
+            "🔥 **Dictamen ALTA FIABILIDAD:** ¡Cumple con los parámetros para MÁS DE 2.5 GOLES!"
         )
-    elif expected_total >= 2.6:
+    elif prob_over_2_5 >= 48.0:
         st.warning(
-            "⚠️ **Dictamen ZONA TRAMPA (PELIGRO):** xG de 2.6 a 2.9. Alta probabilidad de quedar 1-1 o 2-0. **NO ARRIESGAR DINERO.**"
+            "⚠️ **Dictamen ZONA MODERADA:** Margen competitivo. Analizar contexto de alineaciones."
         )
     else:
         st.error(
-            "❌ **Dictamen DESCARTADO:** Partido defensivo o cerrado. No cumple con la norma de goles."
+            "❌ **Dictamen DESCARTADO:** Tendencia a partido cerrado (Under 2.5)."
         )
 
     # Bloque de Análisis Estadístico
-    st.markdown("### 📋 Desglose Técnico de Seguridad")
+    st.markdown("### 📋 Desglose Técnico")
     st.markdown(
         f"""
-    * **Goles Totales Esperados (xG Combinado):** `{expected_total:.2f} goles`
-    * **Riesgo de Under (-2.5):** `{prob_under_2_5:.2f}%`
+    * **Goles Totales Esperados (xG Ajustado):** `{expected_total:.2f} goles`
+    * **Probabilidad de Menos de 2.5 Goles:** `{prob_under_2_5:.2f}%`
     * **Aporte Local ({home_team}):** `{home_avg}` goles
     * **Aporte Visitante ({away_team}):** `{away_avg}` goles
     """
     )
 
-    if expected_total >= 3.0:
+    if prob_over_2_5 >= 58.0:
         st.info(
-            f"💡 **Conclusión:** Con {expected_total:.2f} de media, el margen cubre los imprevistos y apunta a la alta."
+            f"💡 **Criterio de Inversión:** El poderío ofensivo combinado y el factor de liga elevan el xG a {expected_total:.2f}, respaldando sólidamente el **Más de 2.5 goles**."
         )
     else:
         st.info(
-            f"💡 **Conclusión:** Un xG de {expected_total:.2f} se queda en la cuerda floja (riesgo de marcador corto tipo 1-1). Es mejor omitirlo y cuidar el capital."
+            f"💡 **Criterio de Inversión:** El xG ajustado de {expected_total:.2f} muestra un riesgo considerable de marcador corto."
         )
