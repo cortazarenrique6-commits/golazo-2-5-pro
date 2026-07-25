@@ -303,7 +303,7 @@ LEAGUES_DATABASE = {
 
 st.title("⚡ Golazo 2.5 Pro")
 st.write(
-    "Selecciona la liga, los equipos e introduce los promedios para generar el análisis completo."
+    "Selecciona la liga, los equipos e introduce los promedios reales para generar el análisis."
 )
 
 selected_league = st.selectbox("Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
@@ -318,9 +318,11 @@ with col2:
         "Equipo Visitante", [t for t in teams if t != home_team]
     )
 
-home_avg = st.number_input("Promedio de goles esperados (Local)", 0.0, 5.0, 1.5)
+home_avg = st.number_input(
+    "Promedio de goles esperados (Local)", 0.0, 5.0, 1.5, step=0.1
+)
 away_avg = st.number_input(
-    "Promedio de goles esperados (Visitante)", 0.0, 5.0, 1.2
+    "Promedio de goles esperados (Visitante)", 0.0, 5.0, 1.2, step=0.1
 )
 
 if st.button("Calcular Predicción y Análisis"):
@@ -350,7 +352,7 @@ if st.button("Calcular Predicción y Análisis"):
             "⚠️ **Dictamen:** Precaución. Tendencia a pocos goles o partido cerrado."
         )
 
-    # Bloque de Análisis Detallado del Partido
+    # Bloque de Análisis Detallado con valores dinámicos
     st.markdown("### 📋 Análisis Táctico y Estadístico")
 
     st.markdown(
@@ -358,20 +360,19 @@ if st.button("Calcular Predicción y Análisis"):
     * **Goles Totales Esperados (xG Combinado):** `{expected_total:.2f} goles`
     * **Probabilidad de Menos de 2.5 Goles:** `{prob_under_2_5:.2f}%`
     * **Tendencia Ofensiva Local ({home_team}):** Promedia un aporte ofensivo de `{home_avg}` goles estimados para este duelo.
-    * **Tendencia Defensiva/Visitante ({away_team}):** Promedia un aporte ofensivo de `{away_avg}` goles estimados para este duelo.
+    * **Tendencia Ofensiva Visitante ({away_team}):** Promedia un aporte ofensivo de `{away_avg}` goles estimados para este duelo.
     """
     )
 
-    # Comentario automático inteligente según el resultado
     if expected_total >= 3.0:
         st.info(
-            f"💡 **Nota del Analista:** Las estadísticas ofensivas de ambos clubes sugieren un partido de ida y vuelta, con espacios en defensa y alta propensión a rebasar la línea de los 3 tantos."
+            f"💡 **Nota del Analista:** Las estadísticas de {home_team} y {away_team} sugieren un partido abierto, con bastantes ocasiones y alta propensión a superar la línea de los 2.5 tantos."
         )
     elif expected_total >= 2.3:
         st.info(
-            f"💡 **Nota del Analista:** Escenario equilibrado. El duelo se encuentra en la línea media; se recomienda revisar alzas de último minuto o alinear con mercados en vivo."
+            f"💡 **Nota del Analista:** Escenario equilibrado. Con un xG combinado de {expected_total:.2f}, el duelo está en la línea media."
         )
     else:
         st.info(
-            f"💡 **Nota del Analista:** Perfil conservador. Los equipos muestran baja producción conjunta esperada, apuntando un trámite táctico o cerrado."
+            f"💡 **Nota del Analista:** Perfil conservador. Los promedios ingresados apuntan a un trámite más táctico o cerrado."
         )
