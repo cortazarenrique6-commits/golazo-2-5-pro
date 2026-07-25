@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Golazo 2.5 Pro - IA Scanner", page_icon="⚡", layout="centered"
 )
 
-# Base de datos global completa con los equipos reales y sus promedios de gol integrados
+# Base de datos global con TODAS las ligas y equipos reales de la aplicación
 LEAGUES_DATABASE = {
     "Liga MX": [
         ("América", 1.8), ("Atlante", 1.2), ("Atlas", 1.1), ("Atlético de San Luis", 1.3), 
@@ -134,7 +134,6 @@ if st.button("Analizar Partido con IA"):
     
     expected_total = home_avg + away_avg
 
-    # Filtro estricto antifraude ajustado a 3.0 para máxima seguridad en el +2.5
     if expected_total >= 3.0:
         prob_over = round(random.uniform(84.0, 92.5), 2)
         status = "ALTA FIABILIDAD (+2.5 RECOMENDADO)"
