@@ -303,7 +303,7 @@ LEAGUES_DATABASE = {
 
 st.title("⚡ Golazo 2.5 Pro")
 st.write(
-    "Selecciona la liga, los equipos e introduce los promedios (puedes usar coma o punto)."
+    "Calculadora especializada en el mercado de más de 2.5 goles con análisis táctico."
 )
 
 selected_league = st.selectbox("Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
@@ -318,13 +318,11 @@ with col2:
         "Equipo Visitante", [t for t in teams if t != home_team]
     )
 
-# Usamos text_input para evitar errores con las comas del teclado
 home_input = st.text_input("Promedio de goles esperados (Local)", "1.5")
 away_input = st.text_input("Promedio de goles esperados (Visitante)", "1.2")
 
 if st.button("Calcular Predicción y Análisis"):
     try:
-        # Reemplazamos la coma por punto automáticamente para que Python no falle
         home_avg = float(home_input.replace(",", "."))
         away_avg = float(away_input.replace(",", "."))
     except ValueError:
@@ -335,7 +333,7 @@ if st.button("Calcular Predicción y Análisis"):
 
     expected_total = home_avg + away_avg
 
-    # Probabilidades exactas con Distribución de Poisson para +2.5 goles
+    # Cálculo exacto por Poisson para +2.5 goles
     p0 = poisson.pmf(0, expected_total)
     p1 = poisson.pmf(1, expected_total)
     p2 = poisson.pmf(2, expected_total)
@@ -344,7 +342,7 @@ if st.button("Calcular Predicción y Análisis"):
     prob_over_2_5 = (1 - (p0 + p1 + p2)) * 100
 
     st.markdown("---")
-    st.subheader("📊 Resultado del Análisis")
+    st.subheader("📊 Resultado del Análisis (+2.5 Goles)")
     st.write(f"**Encuentro:** {home_team} vs {away_team} *({selected_league})*")
 
     st.metric(
@@ -352,33 +350,32 @@ if st.button("Calcular Predicción y Análisis"):
         value=f"{prob_over_2_5:.2f}%",
     )
 
-    if prob_over_2_5 >= 55.0:
-        st.success("🔥 **Dictamen:** Alta probabilidad. ¡Mercado recomendado (+2.5)!")
+    # Umbral lógico ajustado para que a partir de ~2.5 de xG total (o ~50% de probabilidad) dé luz verde al +2.5
+    if prob_over_2_5 >= 50.0:
+        st.success(
+            "🔥 **Dictamen:** ¡Mercado recomendado para MÁS DE 2.5 GOLES!"
+        )
     else:
         st.warning(
-            "⚠️ **Dictamen:** Precaución. Tendencia a pocos goles o partido cerrado."
+            "⚠️ **Dictamen:** Precaución. Alta probabilidad de menos de 2.5 goles."
         )
 
-    # Bloque de Análisis Estadístico
+    # Bloque de Análisis Estadístico enfocado al +2.5
     st.markdown("### 📋 Análisis Táctico y Estadístico")
     st.markdown(
         f"""
     * **Goles Totales Esperados (xG Combinado):** `{expected_total:.2f} goles`
-    * **Probabilidad de Menos de 2.5 Goles:** `{prob_under_2_5:.2f}%`
+    * **Probabilidad de Más de 2.5 Goles:** `{prob_over_2_5:.2f}%`
     * **Tendencia Ofensiva Local ({home_team}):** `{home_avg}` goles estimados.
     * **Tendencia Ofensiva Visitante ({away_team}):** `{away_avg}` goles estimados.
     """
     )
 
-    if expected_total >= 3.0:
+    if prob_over_2_5 >= 50.0:
         st.info(
-            f"💡 **Nota del Analista:** Las estadísticas de {home_team} y {away_team} apuntan a un duelo abierto con alta tendencia a superar los 2.5 tantos."
-        )
-    elif expected_total >= 2.3:
-        st.info(
-            f"💡 **Nota del Analista:** Escenario equilibrado. Con un xG de {expected_total:.2f}, está en la línea límite para el mercado de más de 2.5."
+            f"💡 **Nota del Analista:** Con un xG combinado de {expected_total:.2f}, {home_team} y {away_team} superan la barrera estadística clave, haciendo viable y atractiva la apuesta al **Más de 2.5 goles**."
         )
     else:
         st.info(
-            f"💡 **Nota del Analista:** Perfil conservador. Los promedios indican un partido cerrado con baja expectativa de goles."
+            f"💡 **Nota del Analista:** El xG combinado de {expected_total:.2f} apunta a un trámite cerrado donde la línea de 2.5 se ve complicada."
         )
