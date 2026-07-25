@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Golazo 2.5 Pro - IA Scanner", page_icon="⚡", layout="centered"
 )
 
-# Base de datos global con TODAS las ligas y equipos reales de la aplicación
+# Base de datos global con TODAS las ligas y equipos reales
 LEAGUES_DATABASE = {
     "Liga MX": [
         ("América", 1.8), ("Atlante", 1.2), ("Atlas", 1.1), ("Atlético de San Luis", 1.3), 
@@ -113,10 +113,34 @@ LEAGUES_DATABASE = {
     ]
 }
 
-st.title("⚡ Golazo 2.5 Pro - IA Scanner")
-st.write("Escáner inteligente de alta efectividad para filtrar partidos del mercado de más de 2.5 goles.")
+# Estilos CSS personalizados para un look moderno de alto impacto
+st.markdown("""
+    <style>
+    .main-header {
+        font-size: 2.2rem;
+        color: #00FF7F;
+        font-weight: 800;
+        margin-bottom: 0rem;
+    }
+    .sub-text {
+        color: #8b949e;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+    .card {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-selected_league = st.selectbox("Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
+st.markdown('<p class="main-header">⚡ GOLAZO 2.5 PRO</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-text">Sistema Inteligente de Escaneo y Filtrado de Alta Precisión</p>', unsafe_allow_html=True)
+
+selected_league = st.selectbox("🌍 Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
 
 teams_data = LEAGUES_DATABASE[selected_league]
 team_names = [t[0] for t in teams_data]
@@ -124,11 +148,13 @@ team_names = [t[0] for t in teams_data]
 col1, col2 = st.columns(2)
 
 with col1:
-    home_team = st.selectbox("Equipo Local", team_names)
+    home_team = st.selectbox("🏠 Equipo Local", team_names)
 with col2:
-    away_team = st.selectbox("Equipo Visitante", [t for t in team_names if t != home_team])
+    away_team = st.selectbox("✈️ Equipo Visitante", [t for t in team_names if t != home_team])
 
-if st.button("Analizar Partido con IA"):
+st.markdown("<br>", unsafe_allow_html=True)
+
+if st.button("🚀 Analizar Partido con IA", use_container_width=True):
     home_avg = next(t[1] for t in teams_data if t[0] == home_team)
     away_avg = next(t[1] for t in teams_data if t[0] == away_team)
     
@@ -150,10 +176,10 @@ if st.button("Analizar Partido con IA"):
     prob_under = round(100 - prob_over, 2)
 
     st.markdown("---")
-    st.subheader("🔍 Reporte de Inteligencia Artificial")
-    st.write(f"**Encuentro:** {home_team} vs {away_team} *({selected_league})*")
+    st.subheader("📊 Reporte Táctico Automatizado")
+    st.write(f"**Encuentro:** `{home_team}` vs `{away_team}` *({selected_league})*")
 
-    st.metric(label="Confianza IA para +2.5 Goles", value=f"{prob_over}%")
+    st.metric(label="🎯 Confianza IA para +2.5 Goles", value=f"{prob_over}%")
 
     if color_code == "success":
         st.success(f"🔥 **Dictamen:** {status}")
@@ -162,17 +188,17 @@ if st.button("Analizar Partido con IA"):
     else:
         st.error(f"❌ **Dictamen:** {status}")
 
-    st.markdown("### 📋 Lectura de Rendimiento Automático")
+    st.markdown("### 📋 Desglose Estadístico")
     st.markdown(f"""
     * **Expectativa Real de Goles (xG IA):** `{expected_total:.2f} goles`
-    * **Capacidad Ofensiva de {home_team}:** `{home_avg} goles por partido`
-    * **Capacidad Ofensiva de {away_team}:** `{away_avg} goles por partido`
-    * **Probabilidad de Fallo (Under 2.5):** `{prob_under}%`
+    * **Capacidad Ofensiva ({home_team}):** `{home_avg} goles/partido`
+    * **Capacidad Ofensiva ({away_team}):** `{away_avg} goles/partido`
+    * **Riesgo de Fallo (Under 2.5):** `{prob_under}%`
     """)
 
     if color_code == "success":
-        st.info(f"💡 **Análisis de la IA:** Con un xG de {expected_total:.2f}, este encuentro supera el estándar de seguridad. Los ataques de ambos clubes garantizan volumen para el **Más de 2.5 goles**.")
+        st.info(f"💡 **Dictamen del Analista:** Con un xG contundente de {expected_total:.2f}, este cruce rompe los filtros de seguridad. Los ataques de ambos clubes garantizan volumen para el **Más de 2.5 goles**.")
     elif color_code == "warning":
-        st.info(f"💡 **Análisis de la IA:** Margen moderado ({expected_total:.2f} xG). Hay opciones de gol, pero se recomienda precaución.")
+        st.info(f"💡 **Dictamen del Analista:** Margen competitivo ({expected_total:.2f} xG). Hay opciones de gol, pero se sugiere evaluar en vivo.")
     else:
-        st.info(f"💡 **Análisis de la IA:** Alerta de partido cerrado. Las estadísticas indican tendencia a pocos goles. **No arriesgar capital aquí.**")
+        st.info(f"💡 **Dictamen del Analista:** Alerta de partido cerrado. Las estadísticas indican tendencia a pocos goles. **No arriesgar capital aquí.**")
