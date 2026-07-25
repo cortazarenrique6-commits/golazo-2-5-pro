@@ -303,7 +303,7 @@ LEAGUES_DATABASE = {
 
 st.title("⚡ Golazo 2.5 Pro")
 st.write(
-    "Selecciona la liga y los equipos para calcular la probabilidad de +2.5 goles."
+    "Selecciona la liga, los equipos e introduce los promedios para generar el análisis completo."
 )
 
 selected_league = st.selectbox("Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
@@ -323,24 +323,55 @@ away_avg = st.number_input(
     "Promedio de goles esperados (Visitante)", 0.0, 5.0, 1.2
 )
 
-if st.button("Calcular Predicción"):
+if st.button("Calcular Predicción y Análisis"):
     expected_total = home_avg + away_avg
-    # Cálculo de probabilidad usando distribución de Poisson para +2.5 goles (P(X >= 3))
-    prob_under_2_5 = (
-        poisson.pmf(0, expected_total)
-        + poisson.pmf(1, expected_total)
-        + poisson.pmf(2, expected_total)
-    )
-    prob_over_2_5 = (1 - prob_under_2_5) * 100
 
-    st.subheader("Resultado del Análisis")
-    st.write(f"**Encuentro:** {home_team} vs {away_team} ({selected_league})")
+    # Probabilidades con Poisson
+    p0 = poisson.pmf(0, expected_total)
+    p1 = poisson.pmf(1, expected_total)
+    p2 = poisson.pmf(2, expected_total)
+
+    prob_under_2_5 = (p0 + p1 + p2) * 100
+    prob_over_2_5 = (1 - (p0 + p1 + p2)) * 100
+
+    st.markdown("---")
+    st.subheader("📊 Resultado del Análisis")
+    st.write(f"**Encuentro:** {home_team} vs {away_team} *({selected_league})*")
+
     st.metric(
         label="Probabilidad de Más de 2.5 Goles",
         value=f"{prob_over_2_5:.2f}%",
     )
 
     if prob_over_2_5 >= 55.0:
-        st.success("🔥 Alta probabilidad: ¡Mercado recomendado para +2.5 goles!")
+        st.success("🔥 **Dictamen:** Alta probabilidad. ¡Mercado recomendado (+2.5)!")
     else:
-        st.warning("⚠️ Precaución: Probabilidad baja para la línea de 2.5 goles.")
+        st.warning(
+            "⚠️ **Dictamen:** Precaución. Tendencia a pocos goles o partido cerrado."
+        )
+
+    # Bloque de Análisis Detallado del Partido
+    st.markdown("### 📋 Análisis Táctico y Estadístico")
+
+    st.markdown(
+        f"""
+    * **Goles Totales Esperados (xG Combinado):** `{expected_total:.2f} goles`
+    * **Probabilidad de Menos de 2.5 Goles:** `{prob_under_2_5:.2f}%`
+    * **Tendencia Ofensiva Local ({home_team}):** Promedia un aporte ofensivo de `{home_avg}` goles estimados para este duelo.
+    * **Tendencia Defensiva/Visitante ({away_team}):** Promedia un aporte ofensivo de `{away_avg}` goles estimados para este duelo.
+    """
+    )
+
+    # Comentario automático inteligente según el resultado
+    if expected_total >= 3.0:
+        st.info(
+            f"💡 **Nota del Analista:** Las estadísticas ofensivas de ambos clubes sugieren un partido de ida y vuelta, con espacios en defensa y alta propensión a rebasar la línea de los 3 tantos."
+        )
+    elif expected_total >= 2.3:
+        st.info(
+            f"💡 **Nota del Analista:** Escenario equilibrado. El duelo se encuentra en la línea media; se recomienda revisar alzas de último minuto o alinear con mercados en vivo."
+        )
+    else:
+        st.info(
+            f"💡 **Nota del Analista:** Perfil conservador. Los equipos muestran baja producción conjunta esperada, apuntando un trámite táctico o cerrado."
+        )
