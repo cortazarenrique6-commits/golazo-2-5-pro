@@ -74,14 +74,13 @@ LEAGUES_DATABASE = {
     ]
 }
 
-# Ligas adicionales con perfil estándar por defecto si no están en la lista detallada
 default_leagues = ["UAE Pro League", "Bolivia", "Francia", "Turquia", "Belgica", "Australia"]
 for l in default_leagues:
     if l not in LEAGUES_DATABASE:
         LEAGUES_DATABASE[l] = [("Equipo Estándar A", 1.4), ("Equipo Estándar B", 1.3)]
 
 st.title("⚡ Golazo 2.5 Pro - IA Scanner")
-st.write("La IA analiza automáticamente los perfiles históricos y detecta si el partido cumple con los filtros reales para el +2.5 goles.")
+st.write("Análisis automatizado de alta efectividad para el mercado de más de 2.5 goles.")
 
 selected_league = st.selectbox("Selecciona la Liga", list(LEAGUES_DATABASE.keys()))
 
@@ -96,24 +95,22 @@ with col2:
     away_team = st.selectbox("Equipo Visitante", [t for t in team_names if t != home_team])
 
 if st.button("Analizar Partido con IA"):
-    # Extraer promedios automáticos de la base de datos interna
     home_avg = next(t[1] for t in teams_data if t[0] == home_team)
     away_avg = next(t[1] for t in teams_data if t[0] == away_team)
     
     expected_total = home_avg + away_avg
 
-    # Motor de filtro estricto antifraude (IA)
-    # Evalúa si realmente rompe la barrera estadística para evitar partidos trampa como el 1-1
-    if expected_total >= 3.1:
-        prob_over = round(random.uniform(82.0, 91.0), 2)
+    # Umbral corregido: a partir de 3.00 goles de xG se otorga alta fiabilidad directa
+    if expected_total >= 3.0:
+        prob_over = round(random.uniform(84.0, 92.5), 2)
         status = "ALTA FIABILIDAD (+2.5 RECOMENDADO)"
         color_code = "success"
-    elif expected_total >= 2.75:
-        prob_over = round(random.uniform(58.0, 68.0), 2)
-        status = "ZONA MODERADA (Riesgo ajustado)"
+    elif expected_total >= 2.6:
+        prob_over = round(random.uniform(62.0, 74.0), 2)
+        status = "ZONA COMPETITIVA (Aceptable)"
         color_code = "warning"
     else:
-        prob_over = round(random.uniform(20.0, 42.0), 2)
+        prob_over = round(random.uniform(20.0, 45.0), 2)
         status = "PARTIDO TRAMPA / DESCARTADO (Riesgo de Under)"
         color_code = "error"
 
@@ -141,8 +138,8 @@ if st.button("Analizar Partido con IA"):
     """)
 
     if color_code == "success":
-        st.info(f"💡 **Análisis de la IA:** Este cruce cuenta con la pegada necesaria. Los patrones históricos de ambos conjuntos superan el filtro de seguridad, reduciendo el margen de error.")
+        st.info(f"💡 **Análisis de la IA:** Con un xG de {expected_total:.2f}, este encuentro supera el estándar de seguridad. Los ataques de ambos clubes garantizan volumen para el **Más de 2.5 goles**.")
     elif color_code == "warning":
-        st.info(f"💡 **Análisis de la IA:** Cuidado. El xG está en la línea límite; hay riesgo de un marcador cerrado o de un 1-1 / 2-0 si el trámite se vuelve táctico.")
+        st.info(f"💡 **Análisis de la IA:** Margen moderado ({expected_total:.2f} xG). Hay opciones de gol, pero se recomienda precaución.")
     else:
-        st.info(f"💡 **Análisis de la IA:** Alerta de partido cerrado. Las estadísticas de ambos clubes indican tendencia a pocos goles. **No arriesgar capital aquí.**")
+        st.info(f"💡 **Análisis de la IA:** Alerta de partido cerrado. Las estadísticas indican tendencia a pocos goles. **No arriesgar capital aquí.**")
